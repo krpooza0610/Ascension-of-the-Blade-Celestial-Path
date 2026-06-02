@@ -14,6 +14,19 @@ body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; ov
 #exp-bar-container { position: absolute; bottom: 0; width: 100%; height: 30px; background: #000; border-top: 2px solid gold; display: flex; align-items: center; justify-content: center; }
 #exp-bar { height: 100%; background: linear-gradient(to right, #4facfe, #00f2fe); width: 50%; }
 #exp-text { position: absolute; font-weight: bold; text-shadow: 1px 1px 2px black; }
+
+html, body {
+height: 100%;
+overflow: hidden; /* กันการไถในโหมดปกติ */
+}
+
+/* แต่ถ้าเป็นแนวนอน ให้ยอมให้เลื่อนนิดเดียวเพื่อซ่อน URL */
+@media screen and (orientation: landscape) {
+body {
+height: 110vh; /* ยาวกว่าหน้าจอ 10% */
+overflow-y: scroll;
+}
+}
 </style>
 </head>
 <body>
@@ -27,6 +40,7 @@ body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; ov
 <!-- เมนู -->
 <div id="menu-container">
 <button class="menu-btn" onclick="toggleMenu()">☰</button>
+<button onclick="toggleFullScreen()" style="position:fixed; bottom:40px; right:10px; z-index:999; background:rgba(0,0,0,0.5); color:white; border:1px solid white; border-radius:5px;">🔲 เต็มจอ</button>
 <div id="menu-list">
 <div onclick="alert('ตัวละคร')">👤 ตัวละคร</div>
 <div onclick="alert('ทักษะ')">⚔️ ทักษะ</div>
@@ -60,6 +74,19 @@ pos3 = e.clientX; pos4 = e.clientY;
 elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
 elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 };
+}
+}
+
+// ฟังก์ชันสลับโหมดเต็มจอ
+function toggleFullScreen() {
+if (!document.fullscreenElement) {
+document.documentElement.requestFullscreen().catch(err => {
+alert(`Error: ${err.message}`);
+});
+} else {
+if (document.exitFullscreen) {
+document.exitFullscreen();
+}
 }
 }
 </script>
