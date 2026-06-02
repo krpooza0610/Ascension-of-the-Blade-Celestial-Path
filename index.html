@@ -3,37 +3,160 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; }
-/* แถบข้อมูลตัวละครที่ลากได้ */
-#character-popup { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; border: 1px solid gold; cursor: move; z-index: 100; }
-/* เมนูหลักที่ซ่อนอยู่ */
-#menu-container { position: absolute; top: 10px; right: 10px; z-index: 200; }
+body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; user-select: none; }
+/* Layer 1: ฉากแผนที่เกม (อยู่ข้างหลัง) */
+#game-world { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom, #114ea0, #2b8c3d); overflow: hidden; z-index: 1; }
+.platform { position: absolute; background: #553311; border-top: 4px solid #33aa33; border-radius: 4px; }
+#player { position: absolute; width: 30px; height: 45px; background: #ffcc00; border-radius: 5px; transition: transform 0.1s; }
+.mob-boar { position: absolute; width: 35px; height: 30px; background: #855e42; border-radius: 5px; }
+/* Layer 2: UI อินเตอร์เฟส (อยู่ข้างบนสุด) */
+#ui-layer { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10; }
+#ui-layer * { pointer-events: auto; }
+#character-popup { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; border: 1px solid gold; cursor: move; }
+#menu-container { position: absolute; top: 10px; right: 10px; }
 .menu-btn { background: gold; padding: 10px; border-radius: 50%; border: none; font-size: 20px; }
-#menu-list { display: none; margin-top: 10px; background: #333; padding: 10px; border-radius: 10px; transition: all 0.3s; }
-/* หลอด EXP ด้านล่าง */
+#menu-list { display: none; margin-top: 10px; background: #333; padding: 10px; border-radius: 10px; }
 #exp-bar-container { position: absolute; bottom: 0; width: 100%; height: 30px; background: #000; border-top: 2px solid gold; display: flex; align-items: center; justify-content: center; }
-#exp-bar { height: 100%; background: linear-gradient(to right, #4facfe, #00f2fe); width: 50%; }
+#exp-bar { height: 100%; background: linear-gradient(to right, #4facfe, #00f2fe); width: 0%; position: absolute; left: 0; }
 #exp-text { position: absolute; font-weight: bold; text-shadow: 1px 1px 2px black; }
-
-html, body {
-height: 100%;
-overflow: hidden; /* กันการไถในโหมดปกติ */
-}
-
-/* แต่ถ้าเป็นแนวนอน ให้ยอมให้เลื่อนนิดเดียวเพื่อซ่อน URL */
-@media screen and (orientation: landscape) {
-body {
-height: 110vh; /* ยาวกว่าหน้าจอ 10% */
-overflow-y: scroll;
-}
-}
+/* ปุ่มควบคุมบนจอมือถือ */
+#controls { position: absolute; bottom: 40px; left: 20px; display: flex; gap: 10px; }
+.ctrl-btn { width: 50px; height: 50px; background: rgba(255,255,255,0.3); border: 2px solid white; border-radius: 10px; color: white; font-size: 20px; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<!-- แถบข้อมูลตัวละคร -->
+<!-- เลเยอร์ฉากเกม (ป่านอกเมือง) -->
+<div id="game-world">
+<!-- แท่นเหยียบในฉาก (Platform) -->
+<div class="platform" style="bottom: 0; left: 0; width: 100%; height: 40px;"></div> <!-- พื้นดินหลัก -->
+<div class="platform" style="bottom: 120px; left: 150px; width: 150px; height: 15px;"></div>
+<div class="platform" style="bottom: 200px; left: 350px; width: 120px; height: 15px;"></div>
+<!-- ตัวละครจอมยุทธน้อย -->
+<div id="player"></div>
+</div>
+
+<!-- เลเยอร์ UI อินเตอร์เฟส -->
+<div id="ui-layer">
 <div id="character-popup" onmousedown="dragElement(this)">
-<div>ชื่อ: จอมยุทธภู</div>
+<div>ชื่อ: จอมยุทธภู (Lv.1)</div>
+<div>HP: 100/100 | MP: 50/50</div>
+</div>
+<div id="menu-container">
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
+<div id="menu-list">
+<div onclick="alert('ตัวละคร')">👤 ตัวละคร</div>
+<div onclick="alert('ทักษะ')">⚔️ ทักษะ</div>
+<div onclick="alert('กระเป๋า')">🎒 กระเป๋า</div>
+</div>
+</div>
+<div id="controls">
+<button class="ctrl-btn" ontouchstart="moveLeft()" ontouchend="stopMove()">◀</button>
+<button class="ctrl-btn" ontouchstart="moveRight()" ontouchend="stopMove()">▶</button>
+<button class="ctrl-btn" ontouchstart="jump()">▲</button>
+</div>
+<div id="exp-bar-container">
+<div id="exp-bar"></div>
+<span id="exp-text">0%</span>
+</div>
+</div>
+
+<script>
+// ตั้งค่าระบบฟิสิกส์และตัวละคร
+const world = document.getElementById('game-world');
+const player = document.getElementById('player');
+const platforms = document.querySelectorAll('.platform');
+let pX = 50, pY = 40, pVx = 0, pVy = 0;
+let isGrounded = false;
+const gravity = 0.6;
+
+// ระบุตำแหน่งเริ่มต้นตัวละคร
+player.style.left = pX + 'px';
+player.style.bottom = pY + 'px';
+
+// ลูปหลักของเกม (Game Loop)
+function gameUpdate() {
+pVy -= gravity;
+pX += pVx;
+pY += pVy;
+isGrounded = false;
+platforms.forEach(plat => {
+let platBottom = parseInt(plat.style.bottom);
+let platLeft = parseInt(plat.style.left || 0);
+let platWidth = plat.offsetWidth;
+let platHeight = plat.offsetHeight;
+if (pVx > 0) player.style.transform = 'scaleX(1)';
+if (pVx < 0) player.style.transform = 'scaleX(-1)';
+if (pX + 30 > platLeft && pX < platLeft + platWidth) {
+if (pY <= platBottom + platHeight && pY + pVy <= platBottom + platHeight && pY >= platBottom) {
+pY = platBottom + platHeight;
+pVy = 0;
+isGrounded = true;
+}
+}
+});
+if (pX < 0) pX = 0;
+if (pX > window.innerWidth - 30) pX = window.innerWidth - 30;
+player.style.left = pX + 'px';
+player.style.bottom = pY + 'px';
+requestAnimationFrame(gameUpdate);
+}
+requestAnimationFrame(gameUpdate);
+
+// ปุ่มควบคุมการเคลื่อนที่
+function moveLeft() { pVx = -4; }
+function moveRight() { pVx = 4; }
+function stopMove() { pVx = 0; }
+function jump() { if (isGrounded) { pVy = 12; isGrounded = false; } }
+
+// ระบบเกิดอัตโนมัติของหมูป่า (Spawn Monster)
+let boars = [];
+function spawnBoar() {
+if (boars.length >= 4) return; // จำกัดให้มีในแมพพร้อมกันไม่เกิน 4 ตัว
+const boar = document.createElement('div');
+boar.className = 'mob-boar';
+let targetPlat = platforms[Math.floor(Math.random() * platforms.length)];
+let platBottom = parseInt(targetPlat.style.bottom);
+let platLeft = parseInt(targetPlat.style.left || 0);
+let platWidth = targetPlat.offsetWidth;
+let bX = platLeft + Math.random() * (platWidth - 35);
+let bY = platBottom + targetPlat.offsetHeight;
+boar.style.left = bX + 'px';
+boar.style.bottom = bY + 'px';
+world.appendChild(boar);
+boars.push(boar);
+// ให้หมูป่าเดินไปมาโง่ๆ
+setInterval(() => {
+let moveDist = (Math.random() - 0.5) * 30;
+let currentLeft = parseInt(boar.style.left);
+boar.style.left = (currentLeft + moveDist) + 'px';
+}, 1000);
+}
+setInterval(spawnBoar, 3000); // ทุกๆ 3 วินาทีจะเช็กเพื่อเกิดหมูป่า
+
+// สลับเมนู UI
+function toggleMenu() {
+const menu = document.getElementById('menu-list');
+menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+}
+
+// ลากหน้าต่าง UI
+function dragElement(elmnt) {
+let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+elmnt.onmousedown = (e) => {
+pos3 = e.clientX; pos4 = e.clientY;
+document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
+document.onmousemove = (e) => {
+pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+pos3 = e.clientX; pos4 = e.clientY;
+elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+};
+};
+}
+</script>
+</body>
+</html>
 <div>HP: 100/100 | MP: 50/50</div>
 </div>
 
