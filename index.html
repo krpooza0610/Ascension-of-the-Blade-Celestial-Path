@@ -5,7 +5,20 @@
 <style>
 body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; user-select: none; }
 /* Layer 1: ฉากแผนที่เกม (อยู่ข้างหลัง) */
-#game-world { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom, #114ea0, #2b8c3d); overflow: hidden; z-index: 1; }
+#game-world { 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100vw; 
+  height: 100vh; 
+  /* ดึงรูปภาพที่เราเตรียมไว้มาใส่ */
+  background-image: url('bg-forest.png'); 
+  /* ตั้งค่าให้ภาพขยายเต็มหน้าจอพอดี ไม่ซ้ำวนลูป */
+  background-size: cover; 
+  background-position: center; 
+  overflow: hidden; 
+  z-index: 1; 
+}
 .platform { position: absolute; background: #553311; border-top: 4px solid #33aa33; border-radius: 4px; }
 #player { position: absolute; width: 30px; height: 45px; background: #ffcc00; border-radius: 5px; transition: transform 0.1s; }
 .mob-boar { position: absolute; width: 35px; height: 30px; background: #855e42; border-radius: 5px; }
