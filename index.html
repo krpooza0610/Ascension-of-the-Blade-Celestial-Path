@@ -42,6 +42,13 @@ body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; ov
 /* ปุ่มควบคุมบนจอมือถือ */
 #controls { position: absolute; bottom: 40px; left: 20px; display: flex; gap: 10px; }
 .ctrl-btn { width: 50px; height: 50px; background: rgba(255,255,255,0.3); border: 2px solid white; border-radius: 10px; color: white; font-size: 20px; font-weight: bold; }
+
+/* ปรับแต่งปุ่มเต็มจอให้ดูเข้ากับธีมทอง */
+.ctrl-btn[onclick="toggleFullScreen()"] {
+    font-size: 18px;
+    color: gold;
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
 </style>
 </head>
 <body>
@@ -74,6 +81,7 @@ body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; ov
 <button class="ctrl-btn" ontouchstart="moveLeft()" ontouchend="stopMove()">◀</button>
 <button class="ctrl-btn" ontouchstart="moveRight()" ontouchend="stopMove()">▶</button>
 <button class="ctrl-btn" ontouchstart="jump()">▲</button>
+<button class="ctrl-btn" onclick="toggleFullScreen()" style="background: rgba(255, 215, 0, 0.4); border-color: gold;">🔲</button>
 </div>
 <div id="exp-bar-container">
 <div id="exp-bar"></div>
