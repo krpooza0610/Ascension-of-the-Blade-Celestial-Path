@@ -11,9 +11,7 @@ body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; ov
   left: 0; 
   width: 100vw; 
   height: 100vh; 
-  /* ดึงรูปภาพที่เราเตรียมไว้มาใส่ */
   background-image: url('bg-forest.png'); 
-  /* ตั้งค่าให้ภาพขยายเต็มหน้าจอพอดี ไม่ซ้ำวนลูป */
   background-size: cover; 
   background-position: center; 
   overflow: hidden; 
@@ -23,13 +21,13 @@ body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; ov
 #player { position: absolute; width: 30px; height: 45px; background: #ffcc00; border-radius: 5px; transition: transform 0.1s; }
 .mob-boar { 
   position: absolute; 
-  width: 50px; /* ปรับขนาดความกว้างให้เห็นดีเทลชัดขึ้น */
-  height: 40px; /* ปรับความสูงให้สมส่วนกับรูป */
-  background-image: url('mob-boar.png'); /* ดึงรูปหมูป่าโปร่งแสงมาใช้ */
+  width: 50px; 
+  height: 40px; 
+  background-image: url('mob-boar.png'); 
   background-size: contain; 
   background-repeat: no-repeat;
   background-position: center;
-  transition: transform 0.1s; /* ใส่เพื่อให้ตอนกลับตัวหันซ้ายขวามันดูสมูท */
+  transition: transform 0.1s; 
 }
 /* Layer 2: UI อินเตอร์เฟส (อยู่ข้างบนสุด) */
 #ui-layer { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10; }
@@ -84,13 +82,13 @@ body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; ov
 </div>
 
 <script>
-// สั่งเมนูแสดง/ซ่อน แบบสมูท
+// สลับเมนู UI
 function toggleMenu() {
 const menu = document.getElementById('menu-list');
 menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
 }
 
-// ระบบลาก Pop-up
+// ระบบลาก Pop-up (ใช้ลากบนคอม/และเตรียมขยายไปมือถือ)
 function dragElement(elmnt) {
 let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 elmnt.onmousedown = dragMouseDown;
@@ -176,48 +174,29 @@ let targetPlat = platforms[Math.floor(Math.random() * platforms.length)];
 let platBottom = parseInt(targetPlat.style.bottom);
 let platLeft = parseInt(targetPlat.style.left || 0);
 let platWidth = targetPlat.offsetWidth;
-let bX = platLeft + Math.random() * (platWidth - 35);
+let bX = platLeft + Math.random() * (platWidth - 50);
 let bY = platBottom + targetPlat.offsetHeight;
 boar.style.left = bX + 'px';
 boar.style.bottom = bY + 'px';
 world.appendChild(boar);
 boars.push(boar);
+
 // ให้หมูป่าเดินไปมาและหันหน้าตามทิศทางจริง
 setInterval(() => {
-let moveDist = (Math.random() - 0.5) * 40; // สุ่มระยะเดิน
+let moveDist = (Math.random() - 0.5) * 40; 
 let currentLeft = parseInt(boar.style.left);
 boar.style.left = (currentLeft + moveDist) + 'px';
 
-// เช็กทิศทาง: ถ้าระยะ moveDist เป็นบวก แปลว่าเดินไปทางขวา ให้กลับด้านรูป
-// เนื่องจากรูปต้นฉบับหันซ้ายอยู่แล้ว ถ้าเดินไปทางซ้าย (moveDist เป็นลบ) ไม่ต้องกลับด้าน
 if (moveDist > 0) {
-boar.style.transform = 'scaleX(-1)'; /* หันขวา */
+boar.style.transform = 'scaleX(-1)'; /* เดินขวาให้กลับด้านรูป (หันขวา) */
 } else {
-boar.style.transform = 'scaleX(1)'; /* หันซ้ายตามรูปเดิม */
+boar.style.transform = 'scaleX(1)'; /* เดินซ้ายให้ใช้รูปเดิม (หันซ้าย) */
 }
 }, 1000);
-setInterval(spawnBoar, 3000); // ทุกๆ 3 วินาทีจะเช็กเพื่อเกิดหมูป่า
-
-// สลับเมนู UI
-function toggleMenu() {
-const menu = document.getElementById('menu-list');
-menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
 }
 
-// ลากหน้าต่าง UI
-function dragElement(elmnt) {
-let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-elmnt.onmousedown = (e) => {
-pos3 = e.clientX; pos4 = e.clientY;
-document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
-document.onmousemove = (e) => {
-pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-pos3 = e.clientX; pos4 = e.clientY;
-elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-};
-};
-}
+// เรียกใช้ระบบสุ่มเกิดมอนสเตอร์ทุกๆ 3 วินาที (แยกออกมาอยู่นอกฟังก์ชันเพื่อไม่ให้บั๊ก)
+setInterval(spawnBoar, 3000);
 </script>
 </body>
 </html>
