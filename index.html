@@ -21,7 +21,16 @@ body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; ov
 }
 .platform { position: absolute; background: #553311; border-top: 4px solid #33aa33; border-radius: 4px; }
 #player { position: absolute; width: 30px; height: 45px; background: #ffcc00; border-radius: 5px; transition: transform 0.1s; }
-.mob-boar { position: absolute; width: 35px; height: 30px; background: #855e42; border-radius: 5px; }
+.mob-boar { 
+  position: absolute; 
+  width: 50px; /* ปรับขนาดความกว้างให้เห็นดีเทลชัดขึ้น */
+  height: 40px; /* ปรับความสูงให้สมส่วนกับรูป */
+  background-image: url('mob-boar.png'); /* ดึงรูปหมูป่าโปร่งแสงมาใช้ */
+  background-size: contain; 
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.1s; /* ใส่เพื่อให้ตอนกลับตัวหันซ้ายขวามันดูสมูท */
+}
 /* Layer 2: UI อินเตอร์เฟส (อยู่ข้างบนสุด) */
 #ui-layer { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10; }
 #ui-layer * { pointer-events: auto; }
@@ -138,13 +147,20 @@ boar.style.left = bX + 'px';
 boar.style.bottom = bY + 'px';
 world.appendChild(boar);
 boars.push(boar);
-// ให้หมูป่าเดินไปมาโง่ๆ
+// ให้หมูป่าเดินไปมาและหันหน้าตามทิศทางจริง
 setInterval(() => {
-let moveDist = (Math.random() - 0.5) * 30;
+let moveDist = (Math.random() - 0.5) * 40; // สุ่มระยะเดิน
 let currentLeft = parseInt(boar.style.left);
 boar.style.left = (currentLeft + moveDist) + 'px';
-}, 1000);
+
+// เช็กทิศทาง: ถ้าระยะ moveDist เป็นบวก แปลว่าเดินไปทางขวา ให้กลับด้านรูป
+// เนื่องจากรูปต้นฉบับหันซ้ายอยู่แล้ว ถ้าเดินไปทางซ้าย (moveDist เป็นลบ) ไม่ต้องกลับด้าน
+if (moveDist > 0) {
+boar.style.transform = 'scaleX(-1)'; /* หันขวา */
+} else {
+boar.style.transform = 'scaleX(1)'; /* หันซ้ายตามรูปเดิม */
 }
+}, 1000);
 setInterval(spawnBoar, 3000); // ทุกๆ 3 วินาทีจะเช็กเพื่อเกิดหมูป่า
 
 // สลับเมนู UI
